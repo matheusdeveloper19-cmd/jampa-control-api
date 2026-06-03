@@ -1,0 +1,18 @@
+# ============================================================
+# Railway — Configuração de deploy da API Jampa Control
+# Documentação: https://docs.railway.app/reference/config-as-code
+# ============================================================
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node src/server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[[services]]
+name = "jampa-control-api"
