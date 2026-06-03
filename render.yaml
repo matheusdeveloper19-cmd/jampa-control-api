@@ -1,0 +1,27 @@
+# ============================================================
+# Render.com — Configuração de deploy (alternativa ao Railway)
+# Documentação: https://render.com/docs/yaml-spec
+# ============================================================
+
+services:
+  - type: web
+    name: jampa-control-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false          # Preencher no painel do Render
+      - key: JWT_SECRET
+        generateValue: true  # Render gera automaticamente
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: CORS_ORIGIN
+        sync: false          # URL do frontend (ex: https://jampa.vercel.app)
+      - key: BCRYPT_ROUNDS
+        value: "10"
+    healthCheckPath: /health
+    autoDeploy: true
