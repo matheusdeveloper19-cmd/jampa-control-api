@@ -1,0 +1,58 @@
+# ============================================================
+# Docker Compose — Stack completo para desenvolvimento local
+# Sobe: PostgreSQL + API Node.js juntos
+# Uso: docker compose up
+# ============================================================
+
+version: "3.9"
+
+services:
+
+  # ── Banco de Dados PostgreSQL ─────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: jampa_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       jampa_control
+      POSTGRES_USER:     jampa_user
+      POSTGRES_PASSWORD: jampa_pass_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Schema executado automaticamente na primeira inicialização
+      - ./jampa-control-schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jampa_user -d jampa_control"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API Node.js ────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jampa_api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL:   postgresql://jampa_user:jampa_pass_local@db:5432/jampa_control
+      JWT_SECRET:     dev_secret_troque_em_producao_64_bytes_minimo
+      JWT_EXPIRES_IN: 8h
+      NODE_ENV:       development
+      PORT:           3001
+      CORS_ORIGIN:    http://localhost:3000
+      BCRYPT_ROUNDS:  "10"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Hot-reload em dev (remover em produção)
+      - ./src:/app/src
+
+volumes:
+  pgdata:
+    name: jampa_pgdata
