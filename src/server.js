@@ -58,6 +58,8 @@ app.get('/health', (req, res) => {
 });
 
 // ── Rotas da API ──────────────────────────────────────────────
+const perfisRoutes = require('./routes/perfis');
+app.use('/api/perfis', perfisRoutes);
 app.use('/api/auth',          authRoutes);
 app.use('/api/lancamentos',   lancamentosRoutes);
 app.use('/api/usuarios',      usuariosRoutes);
